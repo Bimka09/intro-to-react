@@ -1,18 +1,26 @@
 import axios from 'axios';
 import { useState } from 'react';
+import ErrorPrinter from './ErrorPrinter';
 
 function InputForm() {
   const [url, setUrl] = useState('');
   const [apiData, setApiData] = useState(null);
+  const [error, setError] = useState('');
 
   const fetchData = async () => {
     try {
+      setError("");
+      setApiData(null);
       const response = await axios(url);
       setApiData(response.data);
     } catch (error) {
-      console.error('Ошибка при загрузке данных:', error);
+      handleError(String(error));
     }
   };
+
+  const handleError = (errorMessage: string) => {
+    setError(errorMessage);
+  }
 
   return (
     <div>
@@ -22,7 +30,11 @@ function InputForm() {
         onChange={(e) => setUrl(e.target.value)}
         placeholder="Введите URL адрес API"
       />
-      <button onClick={fetchData}>Загрузить данные</button>
+      <button onClick={fetchData} disabled={url === ""}>
+        Загрузить данные
+      </button>
+
+      {error && <ErrorPrinter error={error} />}
 
       {apiData && (
         <div>
